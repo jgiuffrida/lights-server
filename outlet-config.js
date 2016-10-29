@@ -6,11 +6,11 @@ module.exports = {
     boxes: [
         {
             totalOutlets: 15,
-            url: 'http://192.168.2.13:3000/outlets/'
+            url: 'http://192.168.2.202:3000/outlets/'
         },
         {
             totalOutlets: 15,
-            url: 'http://192.168.2.14:3000/outlets/'
+            url: 'http://192.168.2.204:3000/outlets/'
         }
     ],
     messageTiming: {
