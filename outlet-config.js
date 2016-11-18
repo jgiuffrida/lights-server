@@ -1,4 +1,15 @@
-module.exports = {
+var _ = require('lodash');
+
+function generateAllRangeArray(obj) {
+    let rangeArr = _.range(1,
+                _.reduce(_.map(obj.boxes, 'totalOutlets'), (sum, n) => {
+                    return sum+n;
+                },1)
+            );
+    return rangeArr;
+}
+
+var config = {
     // how far should we offset the mapping between the outlets
     // for example, the api starts at 1, not 0, so offset of 1 would correct that
     // if you wanted to skip the first outlet, offset would be 2
@@ -14,39 +25,65 @@ module.exports = {
         }
     ],
     messageTiming: {
-        on: 2500,
-        break: 500,
-        space: 1500,
-        betweenMessages: 4000
+        on: 1800,
+        break: 200,
+        space: 800,
+        betweenMessages: 10000
+    },
+    turnBackOn: [27, 29, 30],
+    patterns: {
+        messageApproach: {
+            pattern: [
+                {lights: [27],on: 50, after: 0},
+                {lights: [28],on: 50,after: 50},
+                {lights: [28],on: 150,after: 50},
+                {lights: [27],on: 100,after: 100},
+                {lights: [27],on: 100,after: 75},
+                {lights: [29],on: 100,after: 0},
+                {lights: [28],on: 250,after: 0},
+                {lights: [29,30],on: 200, after: 0},
+                {lights: [30],on: 100,after: 50},
+                {lights: [29],on: 150,after: 50},
+                {lights: [29, 30],on: 50,after: 0}
+            ],
+            label: 'Approaching Message'
+        },
+        allOff: {
+            pattern: [],
+            label: 'All Off'
+        },
+        fan: {
+            pattern: [],
+            label: 'Fan All'
+        },
+        fanLetters: {
+            pattern: [],
+            label: 'Fan Letters'
+        },
+        flashAll: {
+            pattern: [],
+            label: 'Flash All!'
+        }
     }
 };
 
+config.patterns.allOff.pattern = _.map(generateAllRangeArray(config),(n) => {
+    return {lights: [n], on: 0, after: 0};
+});
 
-// mapping
-/*
+config.patterns.fan.pattern = _.map(generateAllRangeArray(config),(n) => {
+    return {lights: [n], on: 100, after: 0};
+});
 
-outlet: actual
+config.patterns.fanLetters.pattern = _.map(_.range(1,27),(n) => {
+    return {lights: [n], on: 100, after: 0};
+});
 
-1: 1
-2: 2 // yay
-3: not working
-4: 4
-5: 13
-6: 6
-7: 7
-8: 8
-9: 9
-10: 10
-11: not working
-12: 12
-13: 14
-14: 5
-15: not working
+config.patterns.flashAll.pattern = [
+    { lights: generateAllRangeArray(config), on: 50, after: 50 },
+    { lights: generateAllRangeArray(config), on: 150, after: 0 },
+    { lights: generateAllRangeArray(config), on: 50, after: 150 },
+    { lights: generateAllRangeArray(config), on: 200, after: 100 }
+];
 
-swap order:
-14 out
-13 to 14
-5 to 13
-loose (14) to 5
-
-*/
+module.exports = config;

@@ -21,8 +21,6 @@ class LightsManager {
             });
         }));
 
-        console.log(parsed.outletMap, parsed.outletManagers);
-
         return parsed;
     }
 
@@ -52,6 +50,57 @@ class LightsManager {
 
             return q.when(this.getCachedStatus());
         });
+    }
+
+    turnBackOn() {
+        _.each(this.config.turnBackOn, (light) => {
+            this.setOutlet(light-1, true);
+        });
+    }
+
+    playPattern(pattern, def) {
+        def = def || q.defer();
+        if(pattern.length) {
+            this.currentPattern = _.clone(pattern);
+            console.log('playing pattern', this.currentPattern);
+            let section = this.currentPattern.shift();
+            this.playPatternSection(section).then(
+                () => {
+                    this.playPattern(this.currentPattern, def);
+                }
+            );
+        }else{
+            this.turnBackOn();
+            def.resolve();
+        }
+
+        return def.promise;
+    }
+
+    playPatternSection(section) {
+        var def = q.defer();
+
+        q.all(_.map(section.lights, (l) => {
+            console.log('turning outlet', l, 'on');
+           return this.setOutlet(l-1, true); 
+        })).then(() => {
+            console.log('turning off after', section.on, 'for', section.after);
+            setTimeout(() => {
+                q.all(_.map(section.lights, (l) => {
+                    return this.setOutlet(l-1, false);
+                })).then(() => {
+                  if(section.after) {
+                        setTimeout(() => {
+                            def.resolve();
+                        }, section.after)
+                    }else{
+                        def.resolve();
+                    }  
+                });
+            }, section.on);
+        });
+
+        return def.promise;
     }
 }
 

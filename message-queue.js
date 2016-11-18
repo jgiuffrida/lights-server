@@ -31,24 +31,26 @@ class MessageQueue {
 
     process() {
         let msg = this.messages[0];
-        this.writeMessage(msg)
-            .then(() => {
-                this.messages.shift();
-                if(this.messages.length) {
-                    if(config.messageTiming.betweenMessages) {
-                        setTimeout(() => {
+        this.lightsManager.playPattern(config.patterns.messageApproach.pattern).then(() => {
+            this.writeMessage(msg)
+                .then(() => {
+                    this.messages.shift();
+                    if(this.messages.length) {
+                        if(config.messageTiming.betweenMessages) {
+                            setTimeout(() => {
+                                __io.emit('lights:message:status', this.getMessages());
+                                this.process();
+                            }, config.messageTiming.betweenMessages);
+                        }else{
                             __io.emit('lights:message:status', this.getMessages());
                             this.process();
-                        }, config.messageTiming.betweenMessages);
+                        }
                     }else{
                         __io.emit('lights:message:status', this.getMessages());
-                        this.process();
+                        this.isProcessing = false;
                     }
-                }else{
-                    __io.emit('lights:message:status', this.getMessages());
-                    this.isProcessing = false;
-                }
-            });
+                });
+        });
         return this;
     }
 

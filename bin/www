@@ -13,6 +13,7 @@ var _ = require('lodash');
  */
 
 var port = normalizePort(process.env.PORT || '4000');
+var config = require('../outlet-config');
 appObj.app.set('port', port);
 // __base provides better require pathing
 global.__base = __dirname + '/../';
@@ -37,6 +38,7 @@ io.on('connection', function (socket) {
   require(__base + 'sockets/lights')(io,socket, appObj.lm, appObj.mq);
   io.emit('lights:outlet:status', appObj.lm.getCachedStatus());
   io.emit('lights:message:status', appObj.mq.getMessages());
+  io.emit('lights:premades:status', config.patterns);
 });
 
 /**
