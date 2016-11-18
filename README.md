@@ -50,4 +50,4 @@ Object of configured canned patterns to play on button press, automatically adde
 ## running
 
 `npm start`
-- Starts express.js server which maintains client connections with socket.io and communicates with raspberry pi(s) through http requests
+- Starts express.js server on port 4000 which maintains client connections with socket.io and communicates with raspberry pi(s) through http requests
